@@ -66,6 +66,7 @@ func (ts *TaskStore) fromCrontab() (err error) {
 func (ts *TaskStore) String() string {
 	task_desc := make([]string, len(ts.tasks))
 	for i, task := range ts.tasks {
+		//Why task.String() work here ? It not pointer of the Task
 		task_desc[i] = task.String()
 	}
 	return strings.Join(task_desc, "\n")

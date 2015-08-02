@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/md5"
 	"fmt"
 	"io"
 	"strings"
@@ -15,6 +16,8 @@ type Task struct {
 	args []string
 	//output
 	output io.Writer
+	//id
+	id string
 }
 
 func NewTask(name string, times, args []string) *Task {
@@ -33,6 +36,18 @@ func (t *Task) Run() (err error) {
 func (t *Task) Out() io.Writer {
 	//todo
 	return t.output
+}
+
+//the stored id of task
+func (t *Task) Id() string {
+	if t.id != "" {
+		return t.id
+	}
+	h := md5.New()
+	io.WriteString(h, t.name)
+	io.WriteString(h, strings.Join(t.args, ""))
+	t.id = fmt.Sprintf("%x", h.Sum(nil))
+	return t.id
 }
 
 //return the character for crontab
