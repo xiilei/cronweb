@@ -45,7 +45,7 @@ func (t *Task) String() string {
 func ParseTask(desc string) *Task {
 	var name string
 	times := make([]string, 5, 5)
-	args := make([]string, 1)
+	args := make([]string, 0, 1)
 	for i, s := range strings.Fields(desc) {
 		if i < 5 {
 			times[i] = s

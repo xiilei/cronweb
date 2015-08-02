@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	Month = iota
-	Day
-	Hour
-	Minute
-	Second
+	TSecond = iota
+	TMinute
+	THour
+	TDay
+	TMonth
+	TWeek
 )
 
 type TaskStore struct {
@@ -23,7 +24,7 @@ type TaskStore struct {
 //NewTaskStore reading tasks from crontab
 func NewTaskStore(c int) (ts *TaskStore) {
 	ts = &TaskStore{
-		tasks: make([]Task, c),
+		tasks: make([]Task, 0, c),
 	}
 	err := ts.fromCrontab()
 	if err != nil {
@@ -33,7 +34,7 @@ func NewTaskStore(c int) (ts *TaskStore) {
 }
 
 //reading and create tasks from linux crontab
-//exec crontab -l command
+//crontab -l command
 func (ts *TaskStore) fromCrontab() (err error) {
 	cmd := exec.Command("crontab", "-l")
 	stdout, err := cmd.StdoutPipe()
@@ -44,7 +45,6 @@ func (ts *TaskStore) fromCrontab() (err error) {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		s := scanner.Text()
@@ -59,9 +59,10 @@ func (ts *TaskStore) fromCrontab() (err error) {
 		return err
 	}
 
-	return nil
+	return
 }
 
+//returns raw crontab tasks
 func (ts *TaskStore) String() string {
 	task_desc := make([]string, len(ts.tasks))
 	for i, task := range ts.tasks {
@@ -69,3 +70,7 @@ func (ts *TaskStore) String() string {
 	}
 	return strings.Join(task_desc, "\n")
 }
+
+// func (ts *TaskStore) Tasks(dt int) []Task {
+
+// }
