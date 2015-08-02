@@ -2,14 +2,16 @@ package core
 
 import (
 	// "github.com/boltdb/bolt"
-	"bufio"
 	"log"
-	"os/exec"
 	"strings"
+	"time"
 )
 
+//the task time flag
+type TDate int
+
 const (
-	TSecond = iota
+	TSecond TDate = iota
 	TMinute
 	THour
 	TDay
@@ -23,55 +25,39 @@ type TaskStore struct {
 
 //NewTaskStore reading tasks from crontab
 func NewTaskStore(c int) (ts *TaskStore) {
-	ts = &TaskStore{
-		tasks: make([]Task, 0, c),
-	}
-	err := ts.fromCrontab()
+	tasks, err := fromCrontab(c)
 	if err != nil {
 		log.Panicf("reading crontab error,%s", err.Error())
 	}
-	return
-}
-
-//reading and create tasks from linux crontab
-//crontab -l command
-func (ts *TaskStore) fromCrontab() (err error) {
-	cmd := exec.Command("crontab", "-l")
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
+	return &TaskStore{
+		tasks: tasks,
 	}
-
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		s := scanner.Text()
-		//ignore comments
-		if strings.HasPrefix(s, "#") {
-			continue
-		}
-		task := ParseTask(s)
-		ts.tasks = append(ts.tasks, *task)
-	}
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-
-	return
 }
 
 //returns raw crontab tasks
 func (ts *TaskStore) String() string {
 	task_desc := make([]string, len(ts.tasks))
 	for i, task := range ts.tasks {
-		//Why task.String() work here ? It not pointer of the Task
 		task_desc[i] = task.String()
 	}
 	return strings.Join(task_desc, "\n")
 }
 
-// func (ts *TaskStore) Tasks(dt int) []Task {
-
-// }
+//get tasks by time
+func (ts *TaskStore) Tasks(dt TDate, tm *time.Time) []Task {
+	tasks := make([]Task, 0, 1)
+	dst_times := []int{
+		tm.Second(),
+		tm.Minute(),
+		tm.Day(),
+		int(tm.Month()),
+		int(tm.Weekday())}
+	t_times := dst_times[dt:]
+	for _, task := range ts.tasks {
+		s_times := task.times[dt:]
+		if checkInCrontabTime(s_times, t_times) {
+			tasks = append(tasks, task)
+		}
+	}
+	return tasks
+}

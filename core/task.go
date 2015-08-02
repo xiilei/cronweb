@@ -56,8 +56,8 @@ func (t *Task) String() string {
 		strings.Join(t.times, " "), t.name, strings.Join(t.args, " "))
 }
 
-//parse crontab's line task
-func ParseTask(desc string) *Task {
+//resolve crontab's line task
+func ResolveTask(desc string) *Task {
 	var name string
 	times := make([]string, 5, 5)
 	args := make([]string, 0, 1)
