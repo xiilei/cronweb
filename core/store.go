@@ -7,17 +7,6 @@ import (
 	"time"
 )
 
-//the task time flag
-type TDate int
-
-const (
-	TMinute TDate = iota
-	THour
-	TDay
-	TMonth
-	TWeek
-)
-
 type TaskStore struct {
 	tasks []Task
 }
@@ -45,16 +34,18 @@ func (ts *TaskStore) Raw() string {
 //Tasks return tasks by time
 func (ts *TaskStore) Tasks(dt TDate, tm *time.Time) []Task {
 	tasks := make([]Task, 0, 1)
+	year, month, day := tm.Date()
 	dst_times := [5]int{
 		tm.Minute(),
 		tm.Hour(),
-		tm.Day(),
-		int(tm.Month()),
+		day,
+		int(month),
 		int(tm.Weekday())}
 	t_times := dst_times[dt:]
+	days := DaysInMonth(int(month), year)
 	for _, task := range ts.tasks {
 		s_times := task.times[dt:]
-		if checkInCrontabTime(s_times, t_times) {
+		if checkInCrontabTime(s_times, t_times, days) {
 			tasks = append(tasks, task)
 		}
 	}

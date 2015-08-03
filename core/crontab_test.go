@@ -1,6 +1,7 @@
 package core
 
 import (
+	"strconv"
 	"testing"
 	"time"
 )
@@ -8,11 +9,18 @@ import (
 func TestCheckCrontabDate(t *testing.T) {
 	dt := 1
 	tm := time.Now()
-	dst_times := [5]int{tm.Minute(), 2, tm.Day(), int(tm.Month()), int(tm.Weekday())}
+	year, month, day := tm.Date()
+	dst_times := [5]int{
+		tm.Minute(),
+		tm.Hour(),
+		day,
+		int(month),
+		int(tm.Weekday())}
 	t_times := dst_times[dt:]
-	src_times := []string{"0", "2", "*", "*", "*"}
+	src_times := [5]string{"0", strconv.Itoa(tm.Hour()), "*", "*", "*"}
 	s_times := src_times[dt:]
-	if !checkInCrontabTime(s_times, t_times) {
+	days := DaysInMonth(int(month), year)
+	if !checkInCrontabTime(s_times, t_times, days) {
 		t.Errorf("check failed where %d", dt)
 	}
 }

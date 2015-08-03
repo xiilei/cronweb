@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	// "time"
 )
 
 const (
@@ -48,7 +47,7 @@ func fromCrontab(c int) (tasks []Task, err error) {
 }
 
 //checking times contains by crontab times
-func checkInCrontabTime(s_times []string, t_times []int) bool {
+func checkInCrontabTime(s_times []string, t_times []int, days int) bool {
 	for i, t := range s_times {
 		if t == "*" {
 			continue
@@ -72,12 +71,28 @@ func checkInCrontabTime(s_times []string, t_times []int) bool {
 //0,30  18-23   *       *   *
 //*     */2     *       *   *
 //*     23-7/1  *       *   *
-//0      4      1       jan *
-func resolveCrontabTime(time_desc string) {
+//0     4       1       jan *
+func resolveCrontabTime(td TDate, time_desc string, days int) {
 	//todo
 }
 
 //resolve ',' '-'
-func resolveCrontabTimeAtom(time_desc string) {
+func resolveCrontabTimeAtom(td TDate, time_desc string, days int) (re_times []int, err error) {
+	var st_times []string
 
+	if strings.Contains(time_desc, CComma) {
+		st_times = strings.Split(time_desc, CComma)
+	} else if strings.Contains(time_desc, CBackslash) {
+		//@todo
+	}
+
+	//convert []string to []int
+	re_times = make([]int, len(st_times))
+	for i, v := range st_times {
+		re_times[i], err = strconv.Atoi(v)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return re_times, nil
 }

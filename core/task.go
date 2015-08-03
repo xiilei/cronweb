@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-type TTimes [5]string
-
 type Task struct {
 	//the task short description.
 	title string
@@ -33,7 +31,7 @@ func NewTask(name string, times TTimes, args []string) *Task {
 }
 
 func (t *Task) Run() (err error) {
-	//todo
+	//@todo
 	return nil
 }
 
@@ -43,7 +41,7 @@ func (t *Task) Out() io.Writer {
 }
 
 //the stored id of task
-//todo add machine unique id
+//@todo add machine unique id
 func (t *Task) Id() string {
 	if t.id != "" {
 		return t.id
