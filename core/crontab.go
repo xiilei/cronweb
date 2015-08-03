@@ -10,6 +10,13 @@ import (
 	// "time"
 )
 
+const (
+	CAny       = "*"
+	CDash      = "-"
+	CBackslash = "/"
+	CComma     = ","
+)
+
 //reading and create tasks from linux crontab
 //crontab -l command
 func fromCrontab(c int) (tasks []Task, err error) {
@@ -57,6 +64,18 @@ func checkInCrontabTime(s_times []string, t_times []int) bool {
 	return true
 }
 
+//some crontab usage follow
+//30 21 * * *
+//45 4 1,10,22 * *
+//0,30 18-23 * * *
+//* */2 * * *
+//* 23-7/1 * * *
+//0 4 1 jan *
 func resolveCrontabTime(time_desc string) {
 	//todo
+}
+
+//resolve ',' '-'
+func resolveCrontabTimeAtom(time_desc string) {
+
 }

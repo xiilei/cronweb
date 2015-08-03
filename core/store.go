@@ -34,16 +34,16 @@ func NewTaskStore(c int) (ts *TaskStore) {
 	}
 }
 
-//returns raw crontab tasks
-func (ts *TaskStore) String() string {
+//Raw return raw crontab tasks
+func (ts *TaskStore) Raw() string {
 	task_desc := make([]string, len(ts.tasks))
 	for i, task := range ts.tasks {
-		task_desc[i] = task.String()
+		task_desc[i] = task.Raw()
 	}
 	return strings.Join(task_desc, "\n")
 }
 
-//get tasks by time
+//Tasks return tasks by time
 func (ts *TaskStore) Tasks(dt TDate, tm *time.Time) []Task {
 	tasks := make([]Task, 0, 1)
 	dst_times := []int{

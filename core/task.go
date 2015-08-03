@@ -7,11 +7,15 @@ import (
 	"strings"
 )
 
+type TTimes [5]string
+
 type Task struct {
-	// Name is the the executable's name.
+	//the task short description.
+	title string
+	//the executable's name.
 	name string
-	// the crontab times ,like * * * * *
-	times []string
+	//the crontab times ,like * * * * *
+	times TTimes
 	//
 	args []string
 	//output
@@ -20,7 +24,7 @@ type Task struct {
 	id string
 }
 
-func NewTask(name string, times, args []string) *Task {
+func NewTask(name string, times TTimes, args []string) *Task {
 	return &Task{
 		name:  name,
 		times: times,
@@ -39,6 +43,7 @@ func (t *Task) Out() io.Writer {
 }
 
 //the stored id of task
+//todo add machine unique id
 func (t *Task) Id() string {
 	if t.id != "" {
 		return t.id
@@ -51,15 +56,15 @@ func (t *Task) Id() string {
 }
 
 //return the character for crontab
-func (t *Task) String() string {
+func (t *Task) Raw() string {
 	return fmt.Sprintf("%s %s %s",
-		strings.Join(t.times, " "), t.name, strings.Join(t.args, " "))
+		strings.Join(t.times[:], " "), t.name, strings.Join(t.args, " "))
 }
 
 //resolve crontab's line task
 func ResolveTask(desc string) *Task {
 	var name string
-	times := make([]string, 5, 5)
+	var times TTimes
 	args := make([]string, 0, 1)
 	for i, s := range strings.Fields(desc) {
 		if i < 5 {
