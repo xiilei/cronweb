@@ -11,8 +11,7 @@ import (
 type TDate int
 
 const (
-	TSecond TDate = iota
-	TMinute
+	TMinute TDate = iota
 	THour
 	TDay
 	TMonth
@@ -46,9 +45,9 @@ func (ts *TaskStore) Raw() string {
 //Tasks return tasks by time
 func (ts *TaskStore) Tasks(dt TDate, tm *time.Time) []Task {
 	tasks := make([]Task, 0, 1)
-	dst_times := []int{
-		tm.Second(),
+	dst_times := [5]int{
 		tm.Minute(),
+		tm.Hour(),
 		tm.Day(),
 		int(tm.Month()),
 		int(tm.Weekday())}

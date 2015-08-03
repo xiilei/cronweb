@@ -47,6 +47,7 @@ func fromCrontab(c int) (tasks []Task, err error) {
 	return
 }
 
+//checking times contains by crontab times
 func checkInCrontabTime(s_times []string, t_times []int) bool {
 	for i, t := range s_times {
 		if t == "*" {
@@ -65,12 +66,13 @@ func checkInCrontabTime(s_times []string, t_times []int) bool {
 }
 
 //some crontab usage follow
-//30 21 * * *
-//45 4 1,10,22 * *
-//0,30 18-23 * * *
-//* */2 * * *
-//* 23-7/1 * * *
-//0 4 1 jan *
+//min   hour    day     mon week
+//30    21      *       *   *
+//45    4       1,10,22 *   *
+//0,30  18-23   *       *   *
+//*     */2     *       *   *
+//*     23-7/1  *       *   *
+//0      4      1       jan *
 func resolveCrontabTime(time_desc string) {
 	//todo
 }
