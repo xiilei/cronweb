@@ -1,2 +1,2 @@
 # cronweb -- linux crontab monitor
-It do not run tasks,monitor only
+It do not run tasks,only monitor

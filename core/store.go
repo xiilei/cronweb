@@ -11,7 +11,7 @@ type TaskStore struct {
 	tasks []Task
 }
 
-//NewTaskStore reading tasks from crontab
+//NewTaskStore management tasks read from the crontab
 func NewTaskStore(c int) (ts *TaskStore) {
 	tasks, err := fromCrontab(c)
 	if err != nil {
@@ -32,9 +32,9 @@ func (ts *TaskStore) Raw() string {
 }
 
 //Tasks return tasks by time
-func (ts *TaskStore) Tasks(dt TDate, tm *time.Time) []Task {
+func (ts *TaskStore) Tasks(dt TDate, tm time.Time) []Task {
 	tasks := make([]Task, 0, 1)
-	year, month, day := tm.Date()
+	_, month, day := tm.Date()
 	dst_times := [5]int{
 		tm.Minute(),
 		tm.Hour(),
@@ -42,10 +42,10 @@ func (ts *TaskStore) Tasks(dt TDate, tm *time.Time) []Task {
 		int(month),
 		int(tm.Weekday())}
 	t_times := dst_times[dt:]
-	days := DaysInMonth(int(month), year)
+	// days := DaysInMonth(int(month), year)
 	for _, task := range ts.tasks {
 		s_times := task.times[dt:]
-		if checkInCrontabTime(s_times, t_times, days) {
+		if checkInCrontabTime(s_times, t_times, tm) {
 			tasks = append(tasks, task)
 		}
 	}
