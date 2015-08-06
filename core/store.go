@@ -42,10 +42,13 @@ func (ts *TaskStore) Tasks(dt TDate, tm time.Time) []Task {
 		int(month),
 		int(tm.Weekday())}
 	t_times := dst_times[dt:]
-	// days := DaysInMonth(int(month), year)
 	for _, task := range ts.tasks {
 		s_times := task.times[dt:]
-		if checkInCrontabTime(s_times, t_times, tm) {
+		ok, err := checkInCrontabTime(s_times, t_times, tm)
+		if err != nil {
+			log.Panicf("check cron time failed:%s", err.Error())
+		}
+		if ok {
 			tasks = append(tasks, task)
 		}
 	}

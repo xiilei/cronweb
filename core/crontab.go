@@ -4,7 +4,7 @@ import (
 	// "github.com/boltdb/bolt"
 	"bufio"
 	"errors"
-	"log"
+	// "log"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -51,23 +51,6 @@ func fromCrontab(c int) (tasks []Task, err error) {
 }
 
 //checking times contains by crontab times
-func checkInCrontabTime(s_times []string, t_times []int, t time.Time) bool {
-	for i, t := range s_times {
-		if t == CAny {
-			continue
-		}
-		si, err := strconv.Atoi(t)
-		if err != nil {
-			log.Printf("convert task.time(%s) to int failed:%s", t, err.Error())
-			continue
-		}
-		if si != t_times[i] {
-			return false
-		}
-	}
-	return true
-}
-
 //some crontab usage follow
 //min   hour    day     mon week
 //30    21      *       *   *
@@ -76,12 +59,43 @@ func checkInCrontabTime(s_times []string, t_times []int, t time.Time) bool {
 //*     */2     *       *   *
 //*     23-7/1  *       *   *
 //0     4       1       jan *
-func resolveCrontabTime(time_desc string, t time.Time) {
-	//todo
+func checkInCrontabTime(s_times []string, t_times []int, tm time.Time) (ok bool, err error) {
+	for i, t := range s_times {
+		ok, err = resolveCrontabTimeAtom(TDate(i), t_times[i], t, tm)
+		if err != nil {
+			return false, err
+		}
+		if !ok {
+			return false, nil
+		}
+	}
+	return ok, nil
 }
 
-//resolve ',' '-'
-func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (re bool, err error) {
+//resolve ',' '-','/'
+func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (ok bool, err error) {
+	if atom_desc == CAny {
+		return true, nil
+	}
+
+	//month word
+	if dt == TMonth {
+		atom_desc = strings.ToLower(atom_desc)
+		for i, wm := range Months {
+			atom_desc = strings.Replace(atom_desc, wm, strconv.Itoa(i+1), -1)
+		}
+	}
+
+	//backslash
+	if strings.Contains(atom_desc, CBackslash) {
+		re_times := strings.Split(atom_desc, CBackslash)
+		if len(re_times) != 2 {
+			return false, badTime
+		}
+		//*/n (n>1) not support  yet
+		return resolveCrontabTimeAtom(dt, dst, re_times[0], t)
+	}
+
 	//comma
 	if strings.Contains(atom_desc, CComma) {
 		dstr := strconv.Itoa(dst)
@@ -90,6 +104,7 @@ func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (r
 				return true, nil
 			}
 		}
+		return false, nil
 	}
 
 	//dash
@@ -108,7 +123,7 @@ func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (r
 		return (re_times[0] <= dst && dst <= tmax) || (0 <= dst && dst <= re_times[1]), nil
 	}
 
-	return false, nil
+	return strconv.Itoa(dst) == atom_desc, nil
 }
 
 //convert []string to []int
