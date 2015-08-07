@@ -93,6 +93,9 @@ func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (o
 			return false, badTime
 		}
 		//*/n (n>1) not support  yet
+		if re_times[1] != "1" {
+			return false, errors.New("*/n (n>1) not support yet")
+		}
 		return resolveCrontabTimeAtom(dt, dst, re_times[0], t)
 	}
 
