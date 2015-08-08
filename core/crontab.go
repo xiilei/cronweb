@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	CAny       = "*"
-	CDash      = "-"
-	CBackslash = "/"
-	CComma     = ","
+	cany       = "*"
+	cdash      = "-"
+	cbackslash = "/"
+	ccomma     = ","
 )
 
 var badTime = errors.New("bad crontab syntax")
@@ -74,7 +74,7 @@ func checkInCrontabTime(s_times []string, t_times []int, tm time.Time) (ok bool,
 
 //resolve ',' '-','/'
 func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (ok bool, err error) {
-	if atom_desc == CAny {
+	if atom_desc == cany {
 		return true, nil
 	}
 
@@ -87,8 +87,8 @@ func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (o
 	}
 
 	//backslash
-	if strings.Contains(atom_desc, CBackslash) {
-		re_times := strings.Split(atom_desc, CBackslash)
+	if strings.Contains(atom_desc, cbackslash) {
+		re_times := strings.Split(atom_desc, cbackslash)
 		if len(re_times) != 2 {
 			return false, badTime
 		}
@@ -100,9 +100,9 @@ func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (o
 	}
 
 	//comma
-	if strings.Contains(atom_desc, CComma) {
+	if strings.Contains(atom_desc, ccomma) {
 		dstr := strconv.Itoa(dst)
-		for _, v := range strings.Split(atom_desc, CComma) {
+		for _, v := range strings.Split(atom_desc, ccomma) {
 			if dstr == v {
 				return true, nil
 			}
@@ -111,8 +111,8 @@ func resolveCrontabTimeAtom(dt TDate, dst int, atom_desc string, t time.Time) (o
 	}
 
 	//dash
-	if strings.Contains(atom_desc, CDash) {
-		re_times, err := asTois(strings.Split(atom_desc, CDash))
+	if strings.Contains(atom_desc, cdash) {
+		re_times, err := asTois(strings.Split(atom_desc, cdash))
 		if err != nil {
 			return false, err
 		}
