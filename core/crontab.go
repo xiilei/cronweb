@@ -23,6 +23,7 @@ var badTime = errors.New("bad crontab syntax")
 //reading and create tasks from linux crontab
 //crontab -l command
 func fromCrontab(c int) (tasks []Task, err error) {
+	var last_cline string
 	tasks = make([]Task, 0, c)
 	cmd := exec.Command("crontab", "-l")
 	stdout, err := cmd.StdoutPipe()
@@ -38,15 +39,19 @@ func fromCrontab(c int) (tasks []Task, err error) {
 		s := scanner.Text()
 		//ignore comments
 		if strings.HasPrefix(s, "#") {
+			last_cline = strings.Trim(s, "# ")
 			continue
 		}
 		task := ResolveTask(s)
+		if last_cline != "" {
+			task.SetTitle(last_cline)
+		}
 		tasks = append(tasks, *task)
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
-
+	err = cmd.Wait()
 	return
 }
 

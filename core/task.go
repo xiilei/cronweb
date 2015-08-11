@@ -16,28 +16,17 @@ type Task struct {
 	times TTimes
 	//
 	args []string
-	//output
-	output io.Writer
 	//id
 	id string
 }
 
-func NewTask(name string, times TTimes, args []string) *Task {
+func NewTask(name, title string, times TTimes, args []string) *Task {
 	return &Task{
 		name:  name,
 		times: times,
 		args:  args,
+		title: title,
 	}
-}
-
-func (t *Task) Run() (err error) {
-	//@todo
-	return nil
-}
-
-func (t *Task) Out() io.Writer {
-	//todo
-	return t.output
 }
 
 //the stored id of task
@@ -51,6 +40,10 @@ func (t *Task) Id() string {
 	io.WriteString(h, strings.Join(t.args, ""))
 	t.id = fmt.Sprintf("%x", h.Sum(nil))
 	return t.id
+}
+
+func (t *Task) SetTitle(title string) {
+	t.title = title
 }
 
 //return the character for crontab
@@ -75,5 +68,5 @@ func ResolveTask(desc string) *Task {
 		}
 		args = append(args, s)
 	}
-	return NewTask(name, times, args)
+	return NewTask(name, "", times, args)
 }
