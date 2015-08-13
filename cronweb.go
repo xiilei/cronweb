@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./core"
 	"fmt"
+	"github.com/xiilei/cronweb/core"
 	"log"
 	"net/http"
 )
