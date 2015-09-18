@@ -4,8 +4,11 @@ import (
 	// "github.com/boltdb/bolt"
 	"bufio"
 	"errors"
-	// "log"
+	"io/ioutil"
+	"log"
+	"os"
 	"os/exec"
+	"os/user"
 	"strconv"
 	"strings"
 	"time"
@@ -20,26 +23,41 @@ const (
 
 var badTime = errors.New("bad crontab syntax")
 
+var cuser *user.User
+
+func init() {
+	var err error
+	cuser, err = user.Current()
+	if err != nil {
+		log.Fatalf("get current user failed:%s\n", err.Error())
+	}
+}
+
 //reading and create tasks from linux crontab
 //crontab -l command
 func fromCrontab(c int) (tasks []Task, err error) {
 	var last_cline string
+	var cline string
 	tasks = make([]Task, 0, c)
 	cmd := exec.Command("crontab", "-l")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
 	}
-
+	defer stdout.Close()
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		s := scanner.Text()
+		cline = strings.TrimSpace(s)
+		if cline == "" {
+			continue
+		}
 		//ignore comments
 		if strings.HasPrefix(s, "#") {
-			last_cline = strings.Trim(s, "# ")
+			last_cline = cline[1:]
 			continue
 		}
 		task := ResolveTask(s)
@@ -144,4 +162,27 @@ func asTois(strs []string) (re_ints []int, err error) {
 		}
 	}
 	return re_ints, nil
+}
+
+//writing raw tasks to crontab
+//@todo keep the comments
+func writeCrontab(task_desc string) error {
+	tmpfile, err := ioutil.TempFile("/tmp", "cronweb-")
+	if err != nil {
+		return err
+	}
+	defer tmpfile.Close()
+	_, err = tmpfile.Write([]byte(task_desc + "\n"))
+	if err != nil {
+		return err
+	}
+	name := tmpfile.Name()
+	tmpfile.Close()
+	cmd := exec.Command("crontab", name, "-u", cuser.Username)
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+	os.Remove(name)
+	return nil
 }

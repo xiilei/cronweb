@@ -34,3 +34,10 @@ func TestResolveCrontabTimeAtom(t *testing.T) {
 		t.Error("resolve faild", err)
 	}
 }
+
+func TestWriteCrontab(t *testing.T) {
+	ts := NewTaskStore(1)
+	if err := writeCrontab(ts.Raw()); err != nil {
+		t.Error("write crontab failed:", err)
+	}
+}
