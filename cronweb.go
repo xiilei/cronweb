@@ -1,22 +1,24 @@
 package main
 
 import (
-	"fmt"
-	"github.com/xiilei/cronweb/core"
-	"log"
-	"net/http"
+	"github.com/codegangsta/cli"
+	"github.com/xiilei/cronweb/commands"
+	"os"
+	"runtime"
 )
 
-type String string
-
-func (s String) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, s)
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
 func main() {
-	addr := "localhost:3881"
-	ts := core.NewTaskStore(1)
-	http.Handle("/", String(ts.Raw()))
-	fmt.Println("listen at", addr)
-	log.Fatal(http.ListenAndServe(addr, nil))
+	app := cli.NewApp()
+	app.Name = "cronweb"
+	app.Usage = "the linux crontab monitor"
+	app.Version = "0.0.0"
+	app.Commands = []cli.Command{
+		commands.WebCmd,
+		commands.RunCmd,
+	}
+	app.Run(os.Args)
 }

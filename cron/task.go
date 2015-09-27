@@ -52,7 +52,7 @@ func (t *Task) Raw() string {
 		strings.Join(t.times[:], " "), t.name, strings.Join(t.args, " "))
 }
 
-//resolve crontab's line task
+//resolve crontab's task
 func ResolveTask(desc string) *Task {
 	var name string
 	var times TTimes
