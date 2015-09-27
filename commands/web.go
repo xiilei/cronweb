@@ -25,7 +25,7 @@ func (s String) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func runWeb(c *cli.Context) {
 	addr := c.String("addr")
-	ts := core.NewTaskStore(1)
+	ts := cron.NewTaskStore(1)
 	http.Handle("/", String(ts.Raw()))
 	fmt.Println("listen at", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
